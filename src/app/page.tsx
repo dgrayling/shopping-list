@@ -43,10 +43,12 @@ export default function Home() {
     setItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  function decrementQuantity(id: string, arg1: string): void {
+  function decrementQuantity(id: string): void {
     setItems(prevItems =>
       prevItems.map(item =>
-        item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+        item.id === id && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
       )
     );
   }
@@ -85,6 +87,19 @@ export default function Home() {
         <ul className={styles.list}>
           {items.map((item) => (
             <li key={item.id} className={styles.listItem}>
+              <div className={styles.quantityContainer}>
+                <button
+                  onClick={() => decrementQuantity(item.id)}
+                  disabled={item.quantity <= 1}
+                  className={item.quantity <= 1 ? styles.disabledButton : ''}
+                >
+                  -
+                </button>
+                <span>
+                  {item.quantity}
+                </span>
+                <button onClick={() => incrementQuantity(item.id, 'increment')}>+</button>
+              </div>
               <input
                 type="checkbox"
                 className={styles.checkbox}
@@ -94,13 +109,6 @@ export default function Home() {
               <span className={item.completed ? styles.itemTextCompleted : styles.itemText}>
                 {item.text}
               </span>
-              <div className={styles.quantityContainer}>
-                <button onClick={() => decrementQuantity(item.id, 'decrement')}>-</button>
-                <span className={item.completed ? styles.itemTextCompleted : styles.itemText}>
-                  {item.quantity}
-                </span>
-                <button onClick={() => incrementQuantity(item.id, 'increment')}>+</button>
-              </div>
               <button
                 className={styles.deleteButton}
                 onClick={() => deleteItem(item.id)}
