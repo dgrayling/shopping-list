@@ -106,9 +106,23 @@ export default function Home() {
                 checked={item.completed}
                 onChange={() => toggleComplete(item.id)}
               />
-              <span className={item.completed ? styles.itemTextCompleted : styles.itemText}>
-                {item.text}
-              </span>
+              <input
+                type="text"
+                className={`${styles.itemInput} ${item.completed ? styles.itemTextCompleted : ''}`}
+                value={item.text}
+                onChange={(e) => {
+                  setItems(prevItems =>
+                    prevItems.map(i =>
+                      i.id === item.id ? { ...i, text: e.target.value } : i
+                    )
+                  );
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.currentTarget.blur();
+                  }
+                }}
+              />
               <button
                 className={styles.deleteButton}
                 onClick={() => deleteItem(item.id)}
