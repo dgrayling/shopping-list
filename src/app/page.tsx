@@ -95,7 +95,7 @@ export default function Home() {
                 >
                   -
                 </button>
-                <span>
+                <span className={styles.quantityIndicator}>
                   {item.quantity}
                 </span>
                 <button onClick={() => incrementQuantity(item.id, 'increment')}>+</button>
