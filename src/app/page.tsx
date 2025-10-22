@@ -7,6 +7,7 @@ type ListItem = {
   id: string;
   text: string;
   completed: boolean;
+  quantity: number;
 };
 
 export default function Home() {
@@ -16,14 +17,15 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const text = inputValue.trim();
-    
+
     if (text) {
       const newItem: ListItem = {
         id: Date.now().toString(),
         text,
-        completed: false
+        completed: false,
+        quantity: 1
       };
-      
+
       setItems(prevItems => [...prevItems, newItem]);
       setInputValue('');
     }
@@ -41,12 +43,28 @@ export default function Home() {
     setItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
+  function decrementQuantity(id: string, arg1: string): void {
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+      )
+    );
+  }
+
+  function incrementQuantity(id: string, arg1: string): void {
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  }
+
   return (
     <div className={styles.page}>
       <main className={styles.container}>
         <h1 className={styles.header}>Shopping List</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
-          <input 
+          <input
             type="text"
             className={styles.input}
             value={inputValue}
@@ -76,7 +94,14 @@ export default function Home() {
               <span className={item.completed ? styles.itemTextCompleted : styles.itemText}>
                 {item.text}
               </span>
-              <button 
+              <div className={styles.quantityContainer}>
+                <button onClick={() => decrementQuantity(item.id, 'decrement')}>-</button>
+                <span className={item.completed ? styles.itemTextCompleted : styles.itemText}>
+                  {item.quantity}
+                </span>
+                <button onClick={() => incrementQuantity(item.id, 'increment')}>+</button>
+              </div>
+              <button
                 className={styles.deleteButton}
                 onClick={() => deleteItem(item.id)}
               >
