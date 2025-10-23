@@ -81,13 +81,14 @@
 .listItem {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   padding: 8px 0;
   border-bottom: 1px solid #e5e7eb;
   width: 100%;
-  position: relative;
   padding-right: 40px;
   /* Make space for the delete button */
   box-sizing: border-box;
+
 }
 
 .itemContent {
@@ -102,6 +103,10 @@
   box-sizing: border-box;
   max-width: calc(100% - 40px);
   /* Ensure content doesn't go under the delete button */
+}
+
+.itemContent * {
+  box-sizing: border-box;
 }
 
 .itemText {

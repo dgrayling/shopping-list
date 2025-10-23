@@ -143,7 +143,7 @@ export default function Home() {
                     autoFocus
                   />
                 ) : (
-                  <span 
+                  <span
                     className={styles.quantityIndicator}
                     onClick={() => {
                       setEditingQuantityId(item.id);
@@ -155,29 +155,31 @@ export default function Home() {
                 )}
                 <button onClick={() => incrementQuantity(item.id)}>+</button>
               </div>
-              <input
-                type="checkbox"
-                className={styles.checkbox}
-                checked={item.completed}
-                onChange={() => toggleComplete(item.id)}
-              />
-              <input
-                type="text"
-                className={`${styles.itemInput} ${item.completed ? styles.itemTextCompleted : ''}`}
-                value={item.text}
-                onChange={(e) => {
-                  setItems(prevItems =>
-                    prevItems.map(i =>
-                      i.id === item.id ? { ...i, text: e.target.value } : i
-                    )
-                  );
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.currentTarget.blur();
-                  }
-                }}
-              />
+              <div className={styles.itemContent}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={item.completed}
+                  onChange={() => toggleComplete(item.id)}
+                />
+                <input
+                  type="text"
+                  className={`${styles.itemInput} ${item.completed ? styles.itemTextCompleted : ''}`}
+                  value={item.text}
+                  onChange={(e) => {
+                    setItems(prevItems =>
+                      prevItems.map(i =>
+                        i.id === item.id ? { ...i, text: e.target.value } : i
+                      )
+                    );
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
+              </div>
               <button
                 className={styles.deleteButton}
                 onClick={() => deleteItem(item.id)}

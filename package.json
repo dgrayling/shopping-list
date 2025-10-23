@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:local": "next dev -p 5000",
     "build": "next build && next export -o out",
     "export": "next export -o out",
     "start": "next start",
