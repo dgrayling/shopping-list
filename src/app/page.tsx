@@ -43,6 +43,9 @@ export default function Home() {
   const [categorizations, setCategorizations] = useState<Categorizations>({});
   const [newCategory, setNewCategory] = useState('');
   const [newValues, setNewValues] = useState<{[key: string]: string}>({});
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<{category: string; index: number} | null>(null);
+  const [editTempValue, setEditTempValue] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -164,6 +167,64 @@ export default function Home() {
     }));
   }
 
+  function startEditCategory(category: string): void {
+    setEditingCategory(category);
+    setEditTempValue(category);
+  }
+
+  function saveCategoryEdit(oldCategory: string, newCategoryName: string): void {
+    if (newCategoryName && newCategoryName !== oldCategory) {
+      setCategorizations(prev => {
+        const { [oldCategory]: values, ...rest } = prev;
+        return { ...rest, [newCategoryName]: values };
+      });
+      
+      // Update any newValues reference
+      setNewValues(prev => {
+        const { [oldCategory]: value, ...rest } = prev;
+        return { ...rest, [newCategoryName]: value || '' };
+      });
+    }
+    setEditingCategory(null);
+  }
+
+  function cancelEditCategory(): void {
+    setEditingCategory(null);
+  }
+
+  function startEditValue(category: string, index: number): void {
+    setEditingValue({ category, index });
+    setEditTempValue(categorizations[category][index]);
+  }
+
+  function saveValueEdit(): void {
+    if (!editingValue) return;
+    
+    const { category, index } = editingValue;
+    if (editTempValue && editTempValue !== categorizations[category][index]) {
+      setCategorizations(prev => {
+        const updatedValues = [...prev[category]];
+        updatedValues[index] = editTempValue;
+        return { ...prev, [category]: updatedValues };
+      });
+    }
+    
+    setEditingValue(null);
+  }
+
+  function cancelEditValue(): void {
+    setEditingValue(null);
+  }
+
+  function handleValueKeyDown(e: React.KeyboardEvent, handler: () => void): void {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handler();
+    } else if (e.key === 'Escape') {
+      cancelEditValue();
+    }
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.mainContent}>
@@ -282,14 +343,88 @@ export default function Home() {
             {Object.entries(categorizations).map(([category, values]) => (
               <div key={category} className={styles.category}>
                 <div className={styles.categoryHeader}>
-                  <h3>{category}</h3>
+                  {editingCategory === category ? (
+                    <div className={styles.editForm}>
+                      <input
+                        type="text"
+                        value={editTempValue}
+                        onChange={(e) => setEditTempValue(e.target.value)}
+                        onKeyDown={(e) => handleValueKeyDown(e, () => saveCategoryEdit(category, editTempValue))}
+                        autoFocus
+                        className={styles.editInput}
+                      />
+                      <div className={styles.editActions}>
+                        <button 
+                          onClick={() => saveCategoryEdit(category, editTempValue)}
+                          className={styles.saveButton}
+                          disabled={!editTempValue.trim()}
+                        >
+                          ✓
+                        </button>
+                        <button 
+                          onClick={cancelEditCategory}
+                          className={styles.cancelButton}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.categoryTitle}>
+                      <h3>{category}</h3>
+                      <button 
+                        onClick={() => startEditCategory(category)}
+                        className={styles.editButton}
+                        title="Edit category"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  )}
                 </div>
                 
                 {values.length > 0 && (
                   <ul className={styles.valuesList}>
                     {values.map((value, index) => (
                       <li key={`${category}-${index}`} className={styles.valueItem}>
-                        {value}
+                        {editingValue?.category === category && editingValue?.index === index ? (
+                          <div className={styles.editForm}>
+                            <input
+                              type="text"
+                              value={editTempValue}
+                              onChange={(e) => setEditTempValue(e.target.value)}
+                              onKeyDown={(e) => handleValueKeyDown(e, saveValueEdit)}
+                              autoFocus
+                              className={styles.editInput}
+                            />
+                            <div className={styles.editActions}>
+                              <button 
+                                onClick={saveValueEdit}
+                                className={styles.saveButton}
+                                disabled={!editTempValue.trim()}
+                              >
+                                ✓
+                              </button>
+                              <button 
+                                onClick={cancelEditValue}
+                                className={styles.cancelButton}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={styles.valueContent}>
+                            <span>{value}</span>
+                            <button 
+                              onClick={() => startEditValue(category, index)}
+                              className={styles.editButton}
+                              title="Edit value"
+                            >
+                              ✏️
+                            </button>
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
