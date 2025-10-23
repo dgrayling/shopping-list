@@ -1,22 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shopping List App
+
+A simple shopping list application built with Next.js.
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to GitHub Pages
+
+1. Create a new repository on GitHub
+2. Push your code to the `main` branch
+3. Go to your repository Settings > Pages
+4. Under "Build and deployment", select "GitHub Actions" as the source
+5. The GitHub Actions workflow will automatically deploy your app to GitHub Pages
+6. Your app will be available at `https://<username>.github.io/shopping-list-app`
+
+### Manual Deployment
+
+If you want to deploy manually:
+
+1. Install required dependencies:
+   ```bash
+   npm install --save-dev gh-pages
+   ```
+
+2. Run the build and deploy:
+   ```bash
+   npm run deploy
+   ```
+
+## Features
+
+- Add, edit, and delete shopping list items
+- Adjust item quantities
+- Mark items as completed
+- Mobile-friendly design
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
