@@ -13,6 +13,8 @@ type ListItem = {
 export default function Home() {
   const [items, setItems] = useState<ListItem[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [editingQuantityId, setEditingQuantityId] = useState<string | null>(null);
+  const [tempQuantity, setTempQuantity] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,23 +45,54 @@ export default function Home() {
     setItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  function decrementQuantity(id: string): void {
+  const updateQuantity = (id: string, newQuantity: number) => {
+    const quantity = Math.max(1, Math.min(99, newQuantity)); // Ensure quantity is between 1 and 99
     setItems(prevItems =>
       prevItems.map(item =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
+        item.id === id ? { ...item, quantity } : item
       )
     );
-  }
+  };
 
-  function incrementQuantity(id: string, arg1: string): void {
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
-  }
+  const decrementQuantity = (id: string): void => {
+    const item = items.find(i => i.id === id);
+    if (item) updateQuantity(id, item.quantity - 1);
+  };
+
+  const incrementQuantity = (id: string): void => {
+    const item = items.find(i => i.id === id);
+    if (item) updateQuantity(id, item.quantity + 1);
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+    const value = e.target.value;
+    // Only allow numbers and empty string
+    if (value === '' || /^\d+$/.test(value)) {
+      setTempQuantity(value);
+    }
+  };
+
+  const handleQuantityBlur = (id: string) => {
+    if (tempQuantity === '') {
+      // If empty, revert to the last valid quantity
+      const item = items.find(i => i.id === id);
+      setTempQuantity(item?.quantity.toString() || '1');
+    } else {
+      const newQuantity = parseInt(tempQuantity, 10);
+      if (!isNaN(newQuantity)) {
+        updateQuantity(id, newQuantity);
+      }
+    }
+    setEditingQuantityId(null);
+  };
+
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    } else if (e.key === 'Escape') {
+      setEditingQuantityId(null);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -95,10 +128,28 @@ export default function Home() {
                 >
                   -
                 </button>
-                <span className={styles.quantityIndicator}>
-                  {item.quantity}
-                </span>
-                <button onClick={() => incrementQuantity(item.id, 'increment')}>+</button>
+                {editingQuantityId === item.id ? (
+                  <input
+                    type="text"
+                    className={styles.quantityInput}
+                    value={tempQuantity}
+                    onChange={(e) => handleQuantityChange(e, item.id)}
+                    onBlur={() => handleQuantityBlur(item.id)}
+                    onKeyDown={(e) => handleQuantityKeyDown(e, item.id)}
+                    autoFocus
+                  />
+                ) : (
+                  <span 
+                    className={styles.quantityIndicator}
+                    onClick={() => {
+                      setEditingQuantityId(item.id);
+                      setTempQuantity(item.quantity.toString());
+                    }}
+                  >
+                    {item.quantity}
+                  </span>
+                )}
+                <button onClick={() => incrementQuantity(item.id)}>+</button>
               </div>
               <input
                 type="checkbox"

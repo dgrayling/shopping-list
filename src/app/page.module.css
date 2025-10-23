@@ -185,6 +185,30 @@
 .quantityIndicator {
   width: 28px;
   text-align: center;
+  cursor: pointer;
+  padding: 4px 0;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.quantityIndicator:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.quantityInput {
+  width: 36px;
+  text-align: center;
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  padding: 4px 0;
+  font-size: 1rem;
+  outline: none;
+  background-color: white;
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.quantityInput:focus {
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .disabledButton {
