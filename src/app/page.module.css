@@ -85,7 +85,8 @@
   border-bottom: 1px solid #e5e7eb;
   width: 100%;
   position: relative;
-  padding-right: 40px; /* Make space for the delete button */
+  padding-right: 40px;
+  /* Make space for the delete button */
   box-sizing: border-box;
 }
 
@@ -94,10 +95,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 0; /* Allows text truncation */
-  padding-right: 8px; /* Add some space before the delete button */
+  min-width: 0;
+  /* Allows text truncation */
+  padding-right: 8px;
+  /* Add some space before the delete button */
   box-sizing: border-box;
-  max-width: calc(100% - 40px); /* Ensure content doesn't go under the delete button */
+  max-width: calc(100% - 40px);
+  /* Ensure content doesn't go under the delete button */
 }
 
 .itemText {
@@ -128,9 +132,12 @@
   justify-content: center;
   border-radius: 4px;
   transition: background-color 0.2s;
-  z-index: 1; /* Ensure it stays above other elements */
-  width: 32px; /* Fixed width for better touch target */
-  height: 32px; /* Fixed height for better touch target */
+  z-index: 1;
+  /* Ensure it stays above other elements */
+  width: 32px;
+  /* Fixed width for better touch target */
+  height: 32px;
+  /* Fixed height for better touch target */
 }
 
 .itemInput {
@@ -138,7 +145,7 @@
   border: none;
   background: transparent;
   font-size: 1rem;
-  padding: 8px 4px;
+  padding: 8px 10px;
   outline: none;
   border-bottom: 1px dashed transparent;
   transition: border-color 0.2s;
@@ -150,29 +157,39 @@
 
 .quantityContainer {
   display: flex;
-  width: 80px;
+  min-width: 100px;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 8px 0;
 }
 
 .quantityContainer button {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: rgba(74, 222, 128, 0.3);
-  /* Green with 30% opacity */
   color: #166534;
-  /* Dark green text */
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1;
-  transition: background-color 0.2s, opacity 0.2s;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.quantityContainer button:active {
+  transform: scale(0.95);
+}
+
+.quantityContainer button:focus-visible {
+  outline: 2px solid #166534;
+  outline-offset: 2px;
 }
 
 .quantityContainer button:not(:disabled):hover {
@@ -202,12 +219,26 @@
 }
 
 .quantityIndicator {
-  width: 28px;
+  min-width: 36px;
   text-align: center;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 8px 4px;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantityIndicator:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.quantityIndicator:focus-visible {
+  outline: 2px solid #166534;
+  outline-offset: 2px;
 }
 
 .quantityIndicator:hover {
