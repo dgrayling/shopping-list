@@ -101,7 +101,17 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.container}>
-        <h1 className={styles.header}>Shopping List</h1>
+        <div className={styles.header}>
+          <h1>Shopping List</h1>
+          <div className={styles.commitInfo}>
+            <span className={styles.commitHash} title={process.env.NEXT_PUBLIC_COMMIT_HASH}>
+              {process.env.NEXT_PUBLIC_COMMIT_HASH}
+            </span>
+            <span className={styles.commitMessage} title={process.env.NEXT_PUBLIC_COMMIT_MESSAGE}>
+              {process.env.NEXT_PUBLIC_COMMIT_MESSAGE}
+            </span>
+          </div>
+        </div>
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
