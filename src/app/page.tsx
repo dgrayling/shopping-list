@@ -11,7 +11,11 @@ type ListItem = {
 };
 
 export default function Home() {
-  const [items, setItems] = useState<ListItem[]>([]);
+  const [items, setItems] = useState<ListItem[]>(() => [
+    { id: '1', text: 'Apples', quantity: 10, completed: false },
+    { id: '2', text: 'Honey', quantity: 2, completed: false },
+    { id: '3', text: 'Yogurt', quantity: 3, completed: false }
+  ]);
   const [inputValue, setInputValue] = useState('');
   const [editingQuantityId, setEditingQuantityId] = useState<string | null>(null);
   const [tempQuantity, setTempQuantity] = useState('');
