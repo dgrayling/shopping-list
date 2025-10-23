@@ -58,10 +58,86 @@
 
 .commitMessage {
   color: var(--text-secondary);
-  font-size: 0.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+  line-height: 1.4;
+}
+
+/* Commit History Section */
+.commitHistory {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  background-color: #f9f9f9;
+}
+
+.commitHistory h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.currentCommit {
+  background-color: #e8f4fd;
+  border-left: 3px solid #4a90e2;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.historyList {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: white;
+}
+
+.historyItem {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s;
+}
+
+.historyItem:last-child {
+  border-bottom: none;
+}
+
+.historyItem:hover {
+  background-color: #f9f9f9;
+}
+
+.commitHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.commitHash {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  background-color: #f0f0f0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: #555;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
+.commitDate {
+  font-size: 0.75rem;
+  color: #777;
+  margin-left: 0.5rem;
+}
+
+.currentCommit .commitHash {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.currentCommit .commitDate {
+  color: #4a90e2;
+  font-weight: 500;
 }
 
 @media (max-width: 480px) {

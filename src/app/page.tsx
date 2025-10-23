@@ -3,6 +3,21 @@
 import { useState } from 'react';
 import styles from "./page.module.css";
 
+// Define types for commit objects
+type CommitInfo = {
+  hash: string;
+  message: string;
+  date?: string;
+};
+
+// Parse the commit history from environment variables
+const currentCommit: CommitInfo | null = process.env.NEXT_PUBLIC_CURRENT_COMMIT 
+  ? JSON.parse(process.env.NEXT_PUBLIC_CURRENT_COMMIT) 
+  : null;
+const commitHistory: CommitInfo[] = process.env.NEXT_PUBLIC_COMMIT_HISTORY 
+  ? JSON.parse(process.env.NEXT_PUBLIC_COMMIT_HISTORY) 
+  : [];
+
 type ListItem = {
   id: string;
   text: string;
@@ -103,14 +118,6 @@ export default function Home() {
       <main className={styles.container}>
         <div className={styles.header}>
           <h1>Shopping List</h1>
-          <div className={styles.commitInfo}>
-            <span className={styles.commitHash} title={process.env.NEXT_PUBLIC_COMMIT_HASH}>
-              {process.env.NEXT_PUBLIC_COMMIT_HASH}
-            </span>
-            <span className={styles.commitMessage} title={process.env.NEXT_PUBLIC_COMMIT_MESSAGE}>
-              {process.env.NEXT_PUBLIC_COMMIT_MESSAGE}
-            </span>
-          </div>
         </div>
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
@@ -199,6 +206,37 @@ export default function Home() {
             </li>
           ))}
         </ul>
+
+        <div className={styles.commitHistory}>
+          <h3>Version History</h3>
+          {currentCommit && (
+            <div className={styles.currentCommit}>
+              <div className={styles.commitHeader}>
+                <span className={styles.commitHash} title={currentCommit.hash}>
+                  {currentCommit.hash}
+                </span>
+                <span className={styles.commitDate}>Current Version</span>
+              </div>
+              <p className={styles.commitMessage}>{currentCommit.message}</p>
+            </div>
+          )}
+          
+          {commitHistory.length > 0 && (
+            <div className={styles.historyList}>
+              {commitHistory.map((commit: CommitInfo, index: number) => (
+                <div key={index} className={styles.historyItem}>
+                  <div className={styles.commitHeader}>
+                    <span className={styles.commitHash} title={commit.hash}>
+                      {commit.hash}
+                    </span>
+                    <span className={styles.commitDate}>{commit.date}</span>
+                  </div>
+                  <p className={styles.commitMessage}>{commit.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );
