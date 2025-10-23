@@ -116,7 +116,8 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <main className={styles.container}>
+      <div className={styles.mainContent}>
+        <main className={styles.container}>
         <div className={styles.header}>
           <h1>Shopping List</h1>
         </div>
@@ -212,7 +213,16 @@ export default function Home() {
         </ul>
       </main>
 
-      <footer className={styles.footer}>
+      <aside className={styles.aside}>
+        <h3>Quick Notes</h3>
+        <p>Use this space for shopping notes, meal planning, or anything else!</p>
+        <div className={styles.notesContent}>
+          {/* Add your notes content here */}
+        </div>
+      </aside>
+    </div>
+
+    <footer className={styles.footer}>
         <div className={styles.commitHistory}>
           <h3>Version History</h3>
           {currentCommit && (
