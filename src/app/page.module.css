@@ -63,12 +63,36 @@
   line-height: 1.4;
 }
 
+/* Page Layout */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  flex: 1;
+  max-width: 600px;
+  width: 100%;
+  margin: 2rem auto;
+  background-color: var(--foreground);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.footer {
+  background-color: #f8f9fa;
+  padding: 1.5rem 0;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+
 /* Commit History Section */
 .commitHistory {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border);
-  background-color: #f9f9f9;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 .commitHistory h3 {
@@ -86,7 +110,7 @@
 }
 
 .historyList {
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -141,6 +165,11 @@
 }
 
 @media (max-width: 480px) {
+  .container {
+    margin: 0;
+    border-radius: 0;
+  }
+  
   .commitInfo {
     flex-direction: column;
     align-items: flex-start;
@@ -149,6 +178,10 @@
   
   .commitHash, .commitMessage {
     max-width: 100%;
+  }
+  
+  .historyList {
+    max-height: 150px;
   }
 }
 

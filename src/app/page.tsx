@@ -11,11 +11,11 @@ type CommitInfo = {
 };
 
 // Parse the commit history from environment variables
-const currentCommit: CommitInfo | null = process.env.NEXT_PUBLIC_CURRENT_COMMIT 
-  ? JSON.parse(process.env.NEXT_PUBLIC_CURRENT_COMMIT) 
+const currentCommit: CommitInfo | null = process.env.NEXT_PUBLIC_CURRENT_COMMIT
+  ? JSON.parse(process.env.NEXT_PUBLIC_CURRENT_COMMIT)
   : null;
-const commitHistory: CommitInfo[] = process.env.NEXT_PUBLIC_COMMIT_HISTORY 
-  ? JSON.parse(process.env.NEXT_PUBLIC_COMMIT_HISTORY) 
+const commitHistory: CommitInfo[] = process.env.NEXT_PUBLIC_COMMIT_HISTORY
+  ? JSON.parse(process.env.NEXT_PUBLIC_COMMIT_HISTORY)
   : [];
 
 type ListItem = {
@@ -23,6 +23,7 @@ type ListItem = {
   text: string;
   completed: boolean;
   quantity: number;
+  aisle?: string;
 };
 
 export default function Home() {
@@ -197,6 +198,9 @@ export default function Home() {
                   }}
                 />
               </div>
+              {item.aisle && (
+                <span className={styles.aisle}>{item.aisle}</span>
+              )}
               <button
                 className={styles.deleteButton}
                 onClick={() => deleteItem(item.id)}
@@ -206,7 +210,9 @@ export default function Home() {
             </li>
           ))}
         </ul>
+      </main>
 
+      <footer className={styles.footer}>
         <div className={styles.commitHistory}>
           <h3>Version History</h3>
           {currentCommit && (
@@ -220,7 +226,7 @@ export default function Home() {
               <p className={styles.commitMessage}>{currentCommit.message}</p>
             </div>
           )}
-          
+
           {commitHistory.length > 0 && (
             <div className={styles.historyList}>
               {commitHistory.map((commit: CommitInfo, index: number) => (
@@ -237,7 +243,7 @@ export default function Home() {
             </div>
           )}
         </div>
-      </main>
+      </footer>
     </div>
   );
 }
