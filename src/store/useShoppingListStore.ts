@@ -1,11 +1,17 @@
 import { create } from 'zustand';
 
+export type CategoryValue = {
+  category: string;
+  value: string;
+};
+
 type ListItem = {
   id: string;
   text: string;
   completed: boolean;
   quantity: number;
   aisle?: string;
+  categoryValues?: CategoryValue[];
 };
 
 type Categorizations = {
@@ -44,6 +50,8 @@ interface ShoppingListState {
   deleteValue: (category: string, index: number) => void;
   startEditingValue: (category: string, index: number, value: string) => void;
   updateValue: (category: string, index: number, newValue: string) => void;
+  addCategoryValue: (itemId: string, category: string, value: string) => void;
+  removeCategoryValue: (itemId: string, category: string) => void;
 }
 
 const useShoppingListStore = create<ShoppingListState>((set) => ({
@@ -211,6 +219,53 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
         [category]: newValues,
       },
       editingValue: null,
+    };
+  }),
+
+  addCategoryValue: (itemId, category, value) => set((state) => {
+    const item = state.items.find(item => item.id === itemId);
+    if (!item) return {};
+
+    const categoryValues = item.categoryValues || [];
+    const existingIndex = categoryValues.findIndex(cv => cv.category === category);
+    
+    if (existingIndex >= 0) {
+      // Update existing category value
+      const updatedValues = [...categoryValues];
+      updatedValues[existingIndex] = { category, value };
+      
+      return {
+        items: state.items.map(i => 
+          i.id === itemId 
+            ? { ...i, categoryValues: updatedValues } 
+            : i
+        )
+      };
+    } else {
+      // Add new category value
+      return {
+        items: state.items.map(i => 
+          i.id === itemId 
+            ? { 
+                ...i, 
+                categoryValues: [...categoryValues, { category, value }] 
+              } 
+            : i
+        )
+      };
+    }
+  }),
+
+  removeCategoryValue: (itemId, category) => set((state) => {
+    return {
+      items: state.items.map(item => 
+        item.id === itemId && item.categoryValues
+          ? { 
+              ...item, 
+              categoryValues: item.categoryValues.filter(cv => cv.category !== category) 
+            }
+          : item
+      )
     };
   }),
 }));

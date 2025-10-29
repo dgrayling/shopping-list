@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect } from 'react';
+import { FormEvent, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect, useState } from 'react';
 import styles from "./page.module.css";
 import useShoppingListStore from '@/store/useShoppingListStore';
 
@@ -29,6 +29,9 @@ type ListItem = {
 
 export default function Home() {
   // Zustand store state and actions
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  
   const {
     items,
     inputValue,
@@ -47,6 +50,8 @@ export default function Home() {
     updateQuantity,
     decrementQuantity,
     incrementQuantity,
+    addCategoryValue,
+    removeCategoryValue,
     setEditingQuantityId,
     setTempQuantity,
     setNewCategory,
@@ -221,9 +226,91 @@ export default function Home() {
                     {item.text}
                   </span>
                 </div>
-                {item.aisle && (
-                  <span className={styles.aisle}>{item.aisle}</span>
-                )}
+                <div className={styles.categoryBubbles}>
+                  {item.categoryValues?.map((cv, idx) => (
+                    <span 
+                      key={`${item.id}-${cv.category}`} 
+                      className={styles.categoryBubble}
+                      title={`${cv.category}: ${cv.value}`}
+                    >
+                      {cv.category}: {cv.value}
+                      <button 
+                        className={styles.removeBubble}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCategoryValue(item.id, cv.category);
+                        }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  
+                  {selectedItemId === item.id && (
+                    <div className={styles.addCategoryValue}>
+                      <select 
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className={styles.categorySelect}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <option value="">Select a category</option>
+                        {Object.entries(categorizations).map(([category, values]) => (
+                          values.length > 0 && (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          )
+                        ))}
+                      </select>
+                      
+                      {selectedCategory && categorizations[selectedCategory]?.length > 0 && (
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              addCategoryValue(item.id, selectedCategory, e.target.value);
+                              setSelectedCategory('');
+                              setSelectedItemId(null);
+                            }
+                          }}
+                          className={styles.valueSelect}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <option value="">Select a value</option>
+                          {categorizations[selectedCategory]?.map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      
+                      <button 
+                        className={styles.cancelAddBubble}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedItemId(null);
+                          setSelectedCategory('');
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                  
+                  {!selectedItemId && (
+                    <button 
+                      className={styles.addBubbleButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedItemId(item.id);
+                      }}
+                      title="Add category value"
+                    >
+                      + Add
+                    </button>
+                  )}
+                </div>
                 <button
                   className={styles.deleteButton}
                   onClick={() => deleteItem(item.id)}
