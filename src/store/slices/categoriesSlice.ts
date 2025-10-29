@@ -5,12 +5,15 @@ export type Categorizations = {
 };
 
 export interface CategoriesState {
+  // State
   categorizations: Categorizations;
   newCategory: string;
   newValues: { [key: string]: string };
   editingCategory: string | null;
   editingValue: { category: string; index: number } | null;
   editTempValue: string;
+
+  // Actions
   setNewCategory: (value: string) => void;
   setNewValues: (values: { [key: string]: string }) => void;
   addCategory: () => void;
@@ -19,8 +22,9 @@ export interface CategoriesState {
   updateCategory: (oldCategory: string, newCategory: string) => void;
   addValueToCategory: (category: string) => void;
   deleteValue: (category: string, index: number) => void;
-  startEditingValue: (category: string, index: number, value: string) => void;
+  startEditingValue: (category: string, index: number) => void;
   updateValue: (category: string, index: number, newValue: string) => void;
+  setEditTempValue: (value: string) => void;
 }
 
 export const createCategoriesSlice: StateCreator<
@@ -37,7 +41,7 @@ export const createCategoriesSlice: StateCreator<
   editTempValue: '',
 
   setNewCategory: (value) => set({ newCategory: value }),
-  
+
   setNewValues: (values) => set({ newValues: values }),
 
   addCategory: () => set((state) => {
@@ -54,7 +58,7 @@ export const createCategoriesSlice: StateCreator<
   deleteCategory: (category) => set((state) => {
     const newCategorizations = { ...state.categorizations };
     delete newCategorizations[category];
-    return { 
+    return {
       categorizations: newCategorizations,
       newValues: Object.fromEntries(
         Object.entries(state.newValues).filter(([cat]) => cat !== category)
@@ -62,7 +66,7 @@ export const createCategoriesSlice: StateCreator<
     };
   }),
 
-  startEditingCategory: (category) => set({ 
+  startEditingCategory: (category) => set({
     editingCategory: category,
     editTempValue: category,
   }),
@@ -71,17 +75,17 @@ export const createCategoriesSlice: StateCreator<
     if (!newCategory.trim() || newCategory === oldCategory) {
       return { editingCategory: null };
     }
-    
+
     const newCategorizations = { ...state.categorizations };
     newCategorizations[newCategory] = [...(newCategorizations[oldCategory] || [])];
     delete newCategorizations[oldCategory];
-    
+
     const newValues = { ...state.newValues };
     if (oldCategory in newValues) {
       newValues[newCategory] = newValues[oldCategory];
       delete newValues[oldCategory];
     }
-    
+
     return {
       categorizations: newCategorizations,
       newValues,
@@ -92,7 +96,7 @@ export const createCategoriesSlice: StateCreator<
   addValueToCategory: (category) => set((state) => {
     const value = state.newValues[category]?.trim();
     if (!value || !state.categorizations[category]) return {};
-    
+
     return {
       categorizations: {
         ...state.categorizations,
@@ -107,10 +111,10 @@ export const createCategoriesSlice: StateCreator<
 
   deleteValue: (category, index) => set((state) => {
     if (!state.categorizations[category]) return {};
-    
+
     const newValues = [...state.categorizations[category]];
     newValues.splice(index, 1);
-    
+
     return {
       categorizations: {
         ...state.categorizations,
@@ -119,19 +123,24 @@ export const createCategoriesSlice: StateCreator<
     };
   }),
 
-  startEditingValue: (category, index, value) => set({
-    editingValue: { category, index },
-    editTempValue: value,
+  startEditingValue: (category, index) => set((state) => {
+    const value = state.categorizations[category]?.[index] || '';
+    return {
+      editingValue: { category, index },
+      editTempValue: value
+    };
   }),
+
+  setEditTempValue: (value: string) => set({ editTempValue: value }),
 
   updateValue: (category, index, newValue) => set((state) => {
     if (!newValue.trim() || !state.categorizations[category]) {
       return { editingValue: null };
     }
-    
+
     const newValues = [...state.categorizations[category]];
     newValues[index] = newValue.trim();
-    
+
     return {
       categorizations: {
         ...state.categorizations,
@@ -140,26 +149,9 @@ export const createCategoriesSlice: StateCreator<
       editingValue: null,
     };
   }),
-}));
+});
 
 // Export the state interface for use in other files
-export interface CategoriesState {
-  categorizations: Categorizations;
-  newCategory: string;
-  newValues: { [key: string]: string };
-  editingCategory: string | null;
-  editingValue: { category: string; index: number } | null;
-  editTempValue: string;
-  setNewCategory: (value: string) => void;
-  setNewValues: (values: { [key: string]: string }) => void;
-  addCategory: () => void;
-  deleteCategory: (category: string) => void;
-  startEditingCategory: (category: string) => void;
-  updateCategory: (oldCategory: string, newCategory: string) => void;
-  addValueToCategory: (category: string) => void;
-  deleteValue: (category: string, index: number) => void;
-  startEditingValue: (category: string, index: number, value: string) => void;
-  updateValue: (category: string, index: number, newValue: string) => void;
-}
+export type { CategoriesState };
 
 export default createCategoriesSlice;

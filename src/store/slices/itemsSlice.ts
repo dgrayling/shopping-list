@@ -32,7 +32,7 @@ interface ItemsState {
   removeCategoryValue: (itemId: string, category: string) => void;
 }
 
-export const createItemsSlice: StateCreator<
+const createItemsSlice: StateCreator<
   ItemsState,
   [],
   [],
@@ -46,9 +46,9 @@ export const createItemsSlice: StateCreator<
   editingQuantityId: null,
   tempQuantity: '',
   inputValue: '',
-  
+
   setInputValue: (value) => set({ inputValue: value }),
-  
+
   addItem: (text) => set((state) => ({
     items: [
       ...state.items,
@@ -74,8 +74,8 @@ export const createItemsSlice: StateCreator<
 
   updateQuantity: (id, newQuantity) => set((state) => ({
     items: state.items.map((item) =>
-      item.id === id 
-        ? { ...item, quantity: Math.max(1, Math.min(99, newQuantity)) } 
+      item.id === id
+        ? { ...item, quantity: Math.max(1, Math.min(99, newQuantity)) }
         : item
     ),
   })),
@@ -101,7 +101,7 @@ export const createItemsSlice: StateCreator<
   }),
 
   setEditingQuantityId: (id) => set({ editingQuantityId: id }),
-  
+
   setTempQuantity: (value) => set({ tempQuantity: value }),
 
   addCategoryValue: (itemId, category, value) => set((state) => {
@@ -110,26 +110,26 @@ export const createItemsSlice: StateCreator<
 
     const categoryValues = item.categoryValues || [];
     const existingIndex = categoryValues.findIndex(cv => cv.category === category);
-    
+
     if (existingIndex >= 0) {
       const updatedValues = [...categoryValues];
       updatedValues[existingIndex] = { category, value };
-      
+
       return {
-        items: state.items.map(i => 
-          i.id === itemId 
-            ? { ...i, categoryValues: updatedValues } 
+        items: state.items.map(i =>
+          i.id === itemId
+            ? { ...i, categoryValues: updatedValues }
             : i
         )
       };
     } else {
       return {
-        items: state.items.map(i => 
-          i.id === itemId 
-            ? { 
-                ...i, 
-                categoryValues: [...categoryValues, { category, value }] 
-              } 
+        items: state.items.map(i =>
+          i.id === itemId
+            ? {
+              ...i,
+              categoryValues: [...categoryValues, { category, value }]
+            }
             : i
         )
       };
@@ -137,34 +137,20 @@ export const createItemsSlice: StateCreator<
   }),
 
   removeCategoryValue: (itemId, category) => set((state) => ({
-    items: state.items.map(item => 
+    items: state.items.map(item =>
       item.id === itemId && item.categoryValues
-        ? { 
-            ...item, 
-            categoryValues: item.categoryValues.filter(cv => cv.category !== category) 
-          }
+        ? {
+          ...item,
+          categoryValues: item.categoryValues.filter(cv => cv.category !== category)
+        }
         : item
     )
   })),
-}));
+});
 
 // Export the state interface for use in other files
-export interface ItemsState {
-  items: ListItem[];
-  editingQuantityId: string | null;
-  tempQuantity: string;
-  inputValue: string;
-  setInputValue: (value: string) => void;
-  addItem: (text: string) => void;
-  toggleComplete: (id: string) => void;
-  deleteItem: (id: string) => void;
-  updateQuantity: (id: string, newQuantity: number) => void;
-  decrementQuantity: (id: string) => void;
-  incrementQuantity: (id: string) => void;
-  setEditingQuantityId: (id: string | null) => void;
-  setTempQuantity: (value: string) => void;
-  addCategoryValue: (itemId: string, category: string, value: string) => void;
-  removeCategoryValue: (itemId: string, category: string) => void;
-}
+export type { ItemsState };
+
+export { createItemsSlice };
 
 export default createItemsSlice;

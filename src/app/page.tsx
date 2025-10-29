@@ -1,8 +1,9 @@
 'use client';
 
-import { FormEvent, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import styles from "./page.module.css";
-import useShoppingListStore from '@/store/useShoppingListStore';
+import useStore from '@/store';
+import ShoppingListItem from '@/components/ShoppingListItem';
 
 // Define types for commit objects
 type CommitInfo = {
@@ -19,30 +20,18 @@ const commitHistory: CommitInfo[] = process.env.NEXT_PUBLIC_COMMIT_HISTORY
   ? JSON.parse(process.env.NEXT_PUBLIC_COMMIT_HISTORY)
   : [];
 
-type ListItem = {
-  id: string;
-  text: string;
-  completed: boolean;
-  quantity: number;
-  aisle?: string;
-};
+// ListItem type is now imported from itemsSlice
 
 export default function Home() {
   // Zustand store state and actions
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   
+  // Get state and actions from the store
   const {
+    // From items slice
     items,
     inputValue,
-    editingQuantityId,
-    tempQuantity,
-    categorizations,
-    newCategory,
-    newValues,
-    editingCategory,
-    editingValue,
-    editTempValue,
     setInputValue,
     addItem,
     toggleComplete,
@@ -52,19 +41,26 @@ export default function Home() {
     incrementQuantity,
     addCategoryValue,
     removeCategoryValue,
-    setEditingQuantityId,
-    setTempQuantity,
+    
+    // From categories slice
+    categorizations,
+    newCategory,
+    newValues,
     setNewCategory,
     setNewValues,
     addCategory,
     deleteCategory,
+    editingCategory,
     startEditingCategory,
     updateCategory,
-    addValueToCategory,
-    deleteValue,
+    editTempValue,
+    setEditTempValue,
+    editingValue,
     startEditingValue,
-    updateValue
-  } = useShoppingListStore();
+    updateValue,
+    addValueToCategory,
+    deleteValue
+  } = useStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,83 +69,103 @@ export default function Home() {
     }
   };
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Only allow numbers and empty string
-    if (value === '' || /^\d+$/.test(value)) {
-      setTempQuantity(value);
+    if (editingValue) {
+      updateValue(editingValue.category, editingValue.index, value);
     }
   };
 
-  const handleQuantityBlur = (id: string) => {
-    if (tempQuantity === '') {
+  const handleEditTempCategory = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTempValue(e.target.value);
+  };
+
+  const handleEditTempValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTempValue(e.target.value);
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      return value;
+    }
+    return '';
+  };
+
+  const handleQuantityBlur = (id: string, tempQty: string) => {
+    if (tempQty === '') {
       // If empty, revert to the last valid quantity
-      const item = items.find(i => i.id === id);
-      setTempQuantity(item?.quantity.toString() || '1');
+      const item = items.find((item: ListItem) => item.id === id);
+      return item?.quantity.toString() || '1';
     } else {
-      const newQuantity = parseInt(tempQuantity, 10);
-      if (!isNaN(newQuantity)) {
+      const newQuantity = parseInt(tempQty, 10);
+      if (!isNaN(newQuantity) && newQuantity > 0) {
         updateQuantity(id, newQuantity);
       }
+      return tempQty;
     }
-    setEditingQuantityId(null);
   };
 
-  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.currentTarget.blur();
-    } else if (e.key === 'Escape') {
-      setEditingQuantityId(null);
     }
   };
 
-  function handleAddCategory(event: FormEvent<HTMLFormElement>): void {
+  const handleAddCategory = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     addCategory();
-  }
+  };
 
-  function handleAddValue(event: FormEvent<HTMLFormElement>, category: string): void {
+  const handleAddValue = (event: FormEvent<HTMLFormElement>, category: string): void => {
     event.preventDefault();
-    addValueToCategory(category);
-  }
+    if (newValues[category]?.trim()) {
+      const handleValueChange = (category: string, value: string) => {
+        setNewValues({
+          ...newValues,
+          [category]: value
+        });
+      };
+      addValueToCategory(category);
+      handleValueChange(category, '');
+    }
+  };
 
-  function handleValueChange(category: string, value: string): void {
-    setNewValues({
-      ...newValues,
-      [category]: value
-    });
-  }
-
-  function startEditCategory(category: string): void {
+  const startEditCategory = (category: string): void => {
     startEditingCategory(category);
-  }
+    setEditTempValue(category);
+  };
 
-  function saveCategoryEdit(oldCategory: string, newCategoryName: string): void {
-    updateCategory(oldCategory, newCategoryName);
-  }
+  const saveCategoryEdit = (): void => {
+    if (!editingCategory) return;
+    updateCategory(editingCategory, editTempValue);
+    setEditTempValue('');
+  };
 
-  function cancelEditCategory(): void {
-    setEditingCategory(null);
-  }
+  const cancelEditCategory = (): void => {
+    startEditingCategory('');
+  };
 
-  function startEditValue(category: string, index: number): void {
-    startEditingValue(category, index, categorizations[category][index]);
-  }
+  const startEditValue = (category: string, index: number): void => {
+    if (categorizations[category]) {
+      startEditingValue(category, index);
+    }
+  };
 
-  function saveValueEdit(): void {
+  const saveValueEdit = (): void => {
     if (!editingValue) return;
     const { category, index } = editingValue;
     updateValue(category, index, editTempValue);
-  }
+  };
 
-  function cancelEditValue(): void {
-    setEditingValue(null);
-  }
+  const cancelEditValue = (): void => {
+    startEditingValue('', 0);
+  };
 
-  function handleValueKeyDown(e: React.KeyboardEvent, handler: () => void): void {
-    if (e.key === 'Enter') {
+  const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, onEnter?: () => void): void => {
+    if (e.key === 'Enter' && onEnter) {
       e.preventDefault();
-      handler();
+      onEnter();
     } else if (e.key === 'Escape') {
       cancelEditValue();
     }
@@ -183,141 +199,29 @@ export default function Home() {
           </form>
           <ul className={styles.list}>
             {items.map((item) => (
-              <li key={item.id} className={styles.listItem}>
-                <div className={styles.quantityContainer}>
-                  <button
-                    onClick={() => decrementQuantity(item.id)}
-                    disabled={item.quantity <= 1}
-                    className={item.quantity <= 1 ? styles.disabledButton : ''}
-                  >
-                    -
-                  </button>
-                  {editingQuantityId === item.id ? (
-                    <input
-                      type="text"
-                      className={styles.quantityInput}
-                      value={tempQuantity}
-                      onChange={(e) => handleQuantityChange(e, item.id)}
-                      onBlur={() => handleQuantityBlur(item.id)}
-                      onKeyDown={(e) => handleQuantityKeyDown(e, item.id)}
-                      autoFocus
-                    />
-                  ) : (
-                    <span
-                      className={styles.quantityIndicator}
-                      onClick={() => {
-                        setEditingQuantityId(item.id);
-                        setTempQuantity(item.quantity.toString());
-                      }}
-                    >
-                      {item.quantity}
-                    </span>
-                  )}
-                  <button onClick={() => incrementQuantity(item.id)}>+</button>
-                </div>
-                <div className={styles.itemContent}>
-                  <input
-                    type="checkbox"
-                    className={styles.checkbox}
-                    checked={item.completed}
-                    onChange={() => toggleComplete(item.id)}
-                  />
-                  <span className={`${styles.itemText} ${item.completed ? styles.itemTextCompleted : ''}`}>
-                    {item.text}
-                  </span>
-                </div>
-                <div className={styles.categoryBubbles}>
-                  {item.categoryValues?.map((cv, idx) => (
-                    <span 
-                      key={`${item.id}-${cv.category}`} 
-                      className={styles.categoryBubble}
-                      title={`${cv.category}: ${cv.value}`}
-                    >
-                      {cv.category}: {cv.value}
-                      <button 
-                        className={styles.removeBubble}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeCategoryValue(item.id, cv.category);
-                        }}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                  
-                  {selectedItemId === item.id && (
-                    <div className={styles.addCategoryValue}>
-                      <select 
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className={styles.categorySelect}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <option value="">Select a category</option>
-                        {Object.entries(categorizations).map(([category, values]) => (
-                          values.length > 0 && (
-                            <option key={category} value={category}>
-                              {category}
-                            </option>
-                          )
-                        ))}
-                      </select>
-                      
-                      {selectedCategory && categorizations[selectedCategory]?.length > 0 && (
-                        <select
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              addCategoryValue(item.id, selectedCategory, e.target.value);
-                              setSelectedCategory('');
-                              setSelectedItemId(null);
-                            }
-                          }}
-                          className={styles.valueSelect}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <option value="">Select a value</option>
-                          {categorizations[selectedCategory]?.map((value) => (
-                            <option key={value} value={value}>
-                              {value}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                      
-                      <button 
-                        className={styles.cancelAddBubble}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedItemId(null);
-                          setSelectedCategory('');
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                  
-                  {!selectedItemId && (
-                    <button 
-                      className={styles.addBubbleButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedItemId(item.id);
-                      }}
-                      title="Add category value"
-                    >
-                      + Add
-                    </button>
-                  )}
-                </div>
-                <button
-                  className={styles.deleteButton}
-                  onClick={() => deleteItem(item.id)}
-                >
-                  ×
-                </button>
-              </li>
+              <ShoppingListItem
+                key={item.id}
+                item={item}
+                onToggleComplete={toggleComplete}
+                onDelete={deleteItem}
+                onUpdateQuantity={updateQuantity}
+                onDecrement={decrementQuantity}
+                onIncrement={incrementQuantity}
+                onAddCategoryValue={(itemId) => {
+                  if (selectedCategory) {
+                    const value = categorizations[selectedCategory]?.[0];
+                    if (value) {
+                      addCategoryValue(itemId, selectedCategory, value);
+                    }
+                  }
+                }}
+                onRemoveCategoryValue={removeCategoryValue}
+                selectedItemId={selectedItemId}
+                setSelectedItemId={setSelectedItemId}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                categorizations={categorizations}
+              />
             ))}
           </ul>
         </main>
