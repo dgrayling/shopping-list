@@ -1,7 +1,8 @@
 'use client';
 
-import { FormEvent, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from 'react';
+import { FormEvent, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useEffect } from 'react';
 import styles from "./page.module.css";
+import useShoppingListStore from '@/store/useShoppingListStore';
 
 // Define types for commit objects
 type CommitInfo = {
@@ -27,72 +28,44 @@ type ListItem = {
 };
 
 export default function Home() {
-  const [items, setItems] = useState<ListItem[]>(() => [
-    { id: '1', text: 'Apples', quantity: 10, completed: false },
-    { id: '2', text: 'Honey', quantity: 2, completed: false },
-    { id: '3', text: 'Yogurt', quantity: 3, completed: false }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [editingQuantityId, setEditingQuantityId] = useState<string | null>(null);
-  const [tempQuantity, setTempQuantity] = useState('');
-  // Categories with their possible values
-  type Categorizations = {
-    [key: string]: string[];
-  };
-
-  const [categorizations, setCategorizations] = useState<Categorizations>({});
-  const [newCategory, setNewCategory] = useState('');
-  const [newValues, setNewValues] = useState<{[key: string]: string}>({});
-  const [editingCategory, setEditingCategory] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState<{category: string; index: number} | null>(null);
-  const [editTempValue, setEditTempValue] = useState('');
+  // Zustand store state and actions
+  const {
+    items,
+    inputValue,
+    editingQuantityId,
+    tempQuantity,
+    categorizations,
+    newCategory,
+    newValues,
+    editingCategory,
+    editingValue,
+    editTempValue,
+    setInputValue,
+    addItem,
+    toggleComplete,
+    deleteItem,
+    updateQuantity,
+    decrementQuantity,
+    incrementQuantity,
+    setEditingQuantityId,
+    setTempQuantity,
+    setNewCategory,
+    setNewValues,
+    addCategory,
+    deleteCategory,
+    startEditingCategory,
+    updateCategory,
+    addValueToCategory,
+    deleteValue,
+    startEditingValue,
+    updateValue
+  } = useShoppingListStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const text = inputValue.trim();
-
-    if (text) {
-      const newItem: ListItem = {
-        id: Date.now().toString(),
-        text,
-        completed: false,
-        quantity: 1
-      };
-
-      setItems(prevItems => [...prevItems, newItem]);
-      setInputValue('');
+    if (inputValue.trim()) {
+      addItem(inputValue);
     }
-  };
-
-  const toggleComplete = (id: string) => {
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    );
-  };
-
-  const deleteItem = (id: string) => {
-    setItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
-
-  const updateQuantity = (id: string, newQuantity: number) => {
-    const quantity = Math.max(1, Math.min(99, newQuantity)); // Ensure quantity is between 1 and 99
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const decrementQuantity = (id: string): void => {
-    const item = items.find(i => i.id === id);
-    if (item) updateQuantity(id, item.quantity - 1);
-  };
-
-  const incrementQuantity = (id: string): void => {
-    const item = items.find(i => i.id === id);
-    if (item) updateQuantity(id, item.quantity + 1);
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
@@ -127,65 +100,27 @@ export default function Home() {
 
   function handleAddCategory(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    const category = newCategory.trim();
-    
-    if (category && !categorizations[category]) {
-      setCategorizations(prev => ({
-        ...prev,
-        [category]: []
-      }));
-      setNewValues(prev => ({
-        ...prev,
-        [category]: ''
-      }));
-      setNewCategory('');
-    }
+    addCategory();
   }
 
   function handleAddValue(event: FormEvent<HTMLFormElement>, category: string): void {
     event.preventDefault();
-    const value = newValues[category]?.trim();
-    
-    if (value && categorizations[category]) {
-      setCategorizations(prev => ({
-        ...prev,
-        [category]: [...(prev[category] || []), value]
-      }));
-      
-      // Clear the input for this category
-      setNewValues(prev => ({
-        ...prev,
-        [category]: ''
-      }));
-    }
+    addValueToCategory(category);
   }
 
   function handleValueChange(category: string, value: string): void {
-    setNewValues(prev => ({
-      ...prev,
+    setNewValues({
+      ...newValues,
       [category]: value
-    }));
+    });
   }
 
   function startEditCategory(category: string): void {
-    setEditingCategory(category);
-    setEditTempValue(category);
+    startEditingCategory(category);
   }
 
   function saveCategoryEdit(oldCategory: string, newCategoryName: string): void {
-    if (newCategoryName && newCategoryName !== oldCategory) {
-      setCategorizations(prev => {
-        const { [oldCategory]: values, ...rest } = prev;
-        return { ...rest, [newCategoryName]: values };
-      });
-      
-      // Update any newValues reference
-      setNewValues(prev => {
-        const { [oldCategory]: value, ...rest } = prev;
-        return { ...rest, [newCategoryName]: value || '' };
-      });
-    }
-    setEditingCategory(null);
+    updateCategory(oldCategory, newCategoryName);
   }
 
   function cancelEditCategory(): void {
@@ -193,23 +128,13 @@ export default function Home() {
   }
 
   function startEditValue(category: string, index: number): void {
-    setEditingValue({ category, index });
-    setEditTempValue(categorizations[category][index]);
+    startEditingValue(category, index, categorizations[category][index]);
   }
 
   function saveValueEdit(): void {
     if (!editingValue) return;
-    
     const { category, index } = editingValue;
-    if (editTempValue && editTempValue !== categorizations[category][index]) {
-      setCategorizations(prev => {
-        const updatedValues = [...prev[category]];
-        updatedValues[index] = editTempValue;
-        return { ...prev, [category]: updatedValues };
-      });
-    }
-    
-    setEditingValue(null);
+    updateValue(category, index, editTempValue);
   }
 
   function cancelEditValue(): void {
@@ -292,23 +217,9 @@ export default function Home() {
                     checked={item.completed}
                     onChange={() => toggleComplete(item.id)}
                   />
-                  <input
-                    type="text"
-                    className={`${styles.itemInput} ${item.completed ? styles.itemTextCompleted : ''}`}
-                    value={item.text}
-                    onChange={(e) => {
-                      setItems(prevItems =>
-                        prevItems.map(i =>
-                          i.id === item.id ? { ...i, text: e.target.value } : i
-                        )
-                      );
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.currentTarget.blur();
-                      }
-                    }}
-                  />
+                  <span className={`${styles.itemText} ${item.completed ? styles.itemTextCompleted : ''}`}>
+                    {item.text}
+                  </span>
                 </div>
                 {item.aisle && (
                   <span className={styles.aisle}>{item.aisle}</span>
