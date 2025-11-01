@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ListItem } from '../store/slices/itemsSlice';
 import styles from '../app/page.module.css';
 
@@ -35,6 +35,39 @@ export default function ShoppingListItem({
 }: ShoppingListItemProps) {
   const [editingQuantityId, setEditingQuantityId] = useState<string | null>(null);
   const [tempQuantity, setTempQuantity] = useState('');
+  const intervalRef = useRef<number | null>(null);
+  const buttonActionRef = useRef<() => void>();
+
+  // Clean up intervals on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const startAction = (action: () => void) => {
+    // Execute action immediately
+    action();
+    
+    // Set a timeout before starting the interval
+    const timeoutId = window.setTimeout(() => {
+      // Then set up the interval for continuous action
+      intervalRef.current = window.setInterval(action, 100); // Adjust speed as needed
+    }, 300); // Wait 300ms before starting the interval
+
+    // Store the timeout ID to clear it if needed
+    intervalRef.current = timeoutId;
+  };
+
+  const stopAction = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      clearTimeout(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
 
   const handleQuantityKeyDown = (e: React.KeyboardEvent, itemId: string) => {
     if (e.key === 'Enter') {
@@ -53,9 +86,21 @@ export default function ShoppingListItem({
     <li className={styles.listItem}>
       <div className={styles.quantityContainer}>
         <button
-          onClick={() => onDecrement(item.id)}
+          onMouseDown={() => {
+            if (item.quantity > 1) {
+              startAction(() => onDecrement(item.id));
+            }
+          }}
+          onMouseUp={stopAction}
+          onMouseLeave={stopAction}
+          onTouchStart={() => {
+            if (item.quantity > 1) {
+              startAction(() => onDecrement(item.id));
+            }
+          }}
+          onTouchEnd={stopAction}
           disabled={item.quantity <= 1}
-          className={item.quantity <= 1 ? styles.disabledButton : ''}
+          className={`${styles.quantityButton} ${item.quantity <= 1 ? styles.disabledButton : ''}`}
         >
           -
         </button>
@@ -81,7 +126,16 @@ export default function ShoppingListItem({
             {item.quantity}
           </span>
         )}
-        <button onClick={() => onIncrement(item.id)}>+</button>
+        <button 
+          onMouseDown={() => startAction(() => onIncrement(item.id))}
+          onMouseUp={stopAction}
+          onMouseLeave={stopAction}
+          onTouchStart={() => startAction(() => onIncrement(item.id))}
+          onTouchEnd={stopAction}
+          className={styles.quantityButton}
+        >
+          +
+        </button>
       </div>
       
       <span 
