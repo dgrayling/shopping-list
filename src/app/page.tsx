@@ -66,13 +66,25 @@ export default function Home() {
     e.preventDefault();
     if (inputValue.trim()) {
       addItem(inputValue);
+      setInputValue('');
     }
   };
 
-  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (editingValue) {
-      updateValue(editingValue.category, editingValue.index, value);
+  const handleValueChange = (categoryOrEvent: string | React.ChangeEvent<HTMLInputElement>, value?: string) => {
+    if (typeof categoryOrEvent === 'string') {
+      // Handle direct value update for category values
+      const category = categoryOrEvent;
+      setNewValues({
+        ...newValues,
+        [category]: value || ''
+      });
+    } else {
+      // Handle event-based update for editing values
+      const e = categoryOrEvent;
+      const newValue = e.target.value;
+      if (editingValue) {
+        updateValue(editingValue.category, editingValue.index, newValue);
+      }
     }
   };
 
@@ -120,14 +132,12 @@ export default function Home() {
   const handleAddValue = (event: FormEvent<HTMLFormElement>, category: string): void => {
     event.preventDefault();
     if (newValues[category]?.trim()) {
-      const handleValueChange = (category: string, value: string) => {
-        setNewValues({
-          ...newValues,
-          [category]: value
-        });
-      };
       addValueToCategory(category);
-      handleValueChange(category, '');
+      // Clear the input after adding
+      setNewValues({
+        ...newValues,
+        [category]: ''
+      });
     }
   };
 
@@ -136,9 +146,11 @@ export default function Home() {
     setEditTempValue(category);
   };
 
-  const saveCategoryEdit = (): void => {
-    if (!editingCategory) return;
-    updateCategory(editingCategory, editTempValue);
+  const saveCategoryEdit = (category?: string, newName?: string): void => {
+    const currentCategory = category || editingCategory;
+    const newCategoryName = newName !== undefined ? newName : editTempValue;
+    if (!currentCategory) return;
+    updateCategory(currentCategory, newCategoryName);
     setEditTempValue('');
   };
 
@@ -147,15 +159,19 @@ export default function Home() {
   };
 
   const startEditValue = (category: string, index: number): void => {
-    if (categorizations[category]) {
+    if (categorizations[category]?.[index] !== undefined) {
       startEditingValue(category, index);
+      setEditTempValue(categorizations[category][index]);
     }
   };
 
   const saveValueEdit = (): void => {
     if (!editingValue) return;
     const { category, index } = editingValue;
-    updateValue(category, index, editTempValue);
+    if (category && index >= 0 && editTempValue.trim()) {
+      updateValue(category, index, editTempValue);
+      cancelEditValue();
+    }
   };
 
   const cancelEditValue = (): void => {
@@ -167,7 +183,12 @@ export default function Home() {
       e.preventDefault();
       onEnter();
     } else if (e.key === 'Escape') {
-      cancelEditValue();
+      e.preventDefault();
+      if (editingValue) {
+        cancelEditValue();
+      } else if (editingCategory) {
+        cancelEditCategory();
+      }
     }
   }
 
@@ -185,14 +206,17 @@ export default function Home() {
               type="text"
               className={styles.input}
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setInputValue(value);
+              }}
               placeholder="Add an item..."
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  const form = e.currentTarget.form;
-                  if (form) {
-                    form.requestSubmit();
+                  if (inputValue.trim()) {
+                    addItem(inputValue);
+                    setInputValue('');
                   }
                 }
               }}
@@ -316,6 +340,7 @@ export default function Home() {
                               value={editTempValue}
                               onChange={(e) => setEditTempValue(e.target.value)}
                               onKeyDown={(e) => handleValueKeyDown(e, saveValueEdit)}
+                              onFocus={(e) => e.target.select()}
                               autoFocus
                               className={styles.editInput}
                               aria-label={`Edit value for ${category}`}
