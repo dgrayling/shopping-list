@@ -26,7 +26,7 @@ export default function Home() {
   // Zustand store state and actions
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  
+
   // Get state and actions from the store
   const {
     // From items slice
@@ -41,7 +41,7 @@ export default function Home() {
     incrementQuantity,
     addCategoryValue,
     removeCategoryValue,
-    
+
     // From categories slice
     categorizations,
     newCategory,
@@ -178,7 +178,7 @@ export default function Home() {
           <div className={styles.header}>
             <h1>Shopping List</h1>
           </div>
-          <form className={styles.form} onSubmit={handleSubmit}>
+          <form className={styles.formGroup} onSubmit={handleSubmit}>
             <input
               type="text"
               className={styles.input}
@@ -256,14 +256,14 @@ export default function Home() {
                         className={styles.editInput}
                       />
                       <div className={styles.editActions}>
-                        <button 
+                        <button
                           onClick={() => saveCategoryEdit(category, editTempValue)}
                           className={styles.saveButton}
                           disabled={!editTempValue.trim()}
                         >
                           ✓
                         </button>
-                        <button 
+                        <button
                           onClick={cancelEditCategory}
                           className={styles.cancelButton}
                         >
@@ -274,7 +274,7 @@ export default function Home() {
                   ) : (
                     <div className={styles.categoryTitle}>
                       <h3>{category}</h3>
-                      <button 
+                      <button
                         onClick={() => startEditCategory(category)}
                         className={styles.editButton}
                         title="Edit category"
@@ -284,7 +284,7 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                
+
                 {values.length > 0 && (
                   <ul className={styles.valuesList}>
                     {values.map((value, index) => (
@@ -300,14 +300,14 @@ export default function Home() {
                               className={styles.editInput}
                             />
                             <div className={styles.editActions}>
-                              <button 
+                              <button
                                 onClick={saveValueEdit}
                                 className={styles.saveButton}
                                 disabled={!editTempValue.trim()}
                               >
                                 ✓
                               </button>
-                              <button 
+                              <button
                                 onClick={cancelEditValue}
                                 className={styles.cancelButton}
                               >
@@ -318,7 +318,7 @@ export default function Home() {
                         ) : (
                           <div className={styles.valueContent}>
                             <span>{value}</span>
-                            <button 
+                            <button
                               onClick={() => startEditValue(category, index)}
                               className={styles.editButton}
                               title="Edit value"
@@ -331,8 +331,8 @@ export default function Home() {
                     ))}
                   </ul>
                 )}
-                
-                <form 
+
+                <form
                   onSubmit={(e) => handleAddValue(e, category)}
                   className={styles.valueForm}
                 >
@@ -344,7 +344,7 @@ export default function Home() {
                       placeholder={`Add to ${category}...`}
                       className={styles.valueInput}
                     />
-                    <button 
+                    <button
                       type="submit"
                       className={styles.addButton}
                       disabled={!newValues[category]?.trim()}
