@@ -248,6 +248,7 @@ export default function Home() {
                 placeholder="Enter category name"
                 required
                 aria-label="New category name"
+                className={styles.input}
               />
               <button 
                 type="submit"
