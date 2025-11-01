@@ -98,6 +98,9 @@ export default function ShoppingListItem({
     <li className={styles.listItem}>
       <div className={styles.quantityContainer}>
         <button
+          id={`decrement-${item.id}`}
+          name={`decrement-${item.id}`}
+          aria-label={`Decrease quantity of ${item.text}`}
           onMouseDown={() => {
             if (item.quantity > 1) {
               startAction(() => onDecrement(item.id));
@@ -118,6 +121,9 @@ export default function ShoppingListItem({
         </button>
         {editingQuantityId === item.id ? (
           <input
+            id={`quantity-${item.id}`}
+            name={`quantity-${item.id}`}
+            aria-label={`Edit quantity of ${item.text}`}
             type="number"
             value={tempQuantity}
             onChange={(e) => setTempQuantity(e.target.value)}
@@ -147,6 +153,9 @@ export default function ShoppingListItem({
           </span>
         )}
         <button
+          id={`increment-${item.id}`}
+          name={`increment-${item.id}`}
+          aria-label={`Increase quantity of ${item.text}`}
           onMouseDown={() => startAction(() => onIncrement(item.id))}
           onMouseUp={stopAction}
           onMouseLeave={stopAction}
@@ -185,6 +194,9 @@ export default function ShoppingListItem({
         {selectedItemId === item.id ? (
           <div className={styles.addCategoryValue}>
             <select
+              id={`category-select-${item.id}`}
+              name={`category-${item.id}`}
+              aria-label="Select a category"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className={styles.categorySelect}
@@ -201,8 +213,12 @@ export default function ShoppingListItem({
 
             {selectedCategory && categorizations[selectedCategory]?.length > 0 && (
               <select
+                id={`value-select-${item.id}`}
+                name={`value-${item.id}`}
+                aria-label="Select a value"
                 onChange={(e) => {
                   if (e.target.value) {
+                    const [category, value] = [selectedCategory, e.target.value];
                     onAddCategoryValue(item.id);
                     setSelectedCategory('');
                     setSelectedItemId(null);
@@ -220,6 +236,9 @@ export default function ShoppingListItem({
             )}
 
             <button
+              id={`cancel-add-${item.id}`}
+              name={`cancel-add-${item.id}`}
+              aria-label="Cancel adding category"
               className={styles.cancelAddBubble}
               onClick={() => {
                 setSelectedItemId(null);
@@ -231,9 +250,12 @@ export default function ShoppingListItem({
           </div>
         ) : (
           <button
+            id={`add-bubble-${item.id}`}
+            name={`add-bubble-${item.id}`}
             className={styles.addBubbleButton}
             onClick={() => setSelectedItemId(item.id)}
             title="Add category value"
+            aria-label={`Add category value for ${item.text}`}
           >
             + Add
           </button>
@@ -241,6 +263,9 @@ export default function ShoppingListItem({
       </div>
 
       <button
+        id={`delete-${item.id}`}
+        name={`delete-${item.id}`}
+        aria-label={`Delete ${item.text}`}
         onClick={(e) => {
           e.stopPropagation();
           onDelete(item.id);

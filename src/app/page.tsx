@@ -180,6 +180,8 @@ export default function Home() {
           </div>
           <form className={styles.formGroup} onSubmit={handleSubmit}>
             <input
+              id="new-item-input"
+              name="newItem"
               type="text"
               className={styles.input}
               value={inputValue}
@@ -194,8 +196,15 @@ export default function Home() {
                   }
                 }
               }}
+              aria-label="New item"
             />
-            <button type="submit" className={styles.button}>Add</button>
+            <button 
+              type="submit" 
+              className={styles.button}
+              aria-label="Add item to list"
+            >
+              Add
+            </button>
           </form>
           <ul className={styles.list}>
             {items.map((item) => (
@@ -231,13 +240,21 @@ export default function Home() {
             <h3>Add New Category</h3>
             <div className={styles.formGroup}>
               <input
+                id="new-category-input"
+                name="newCategory"
                 type="text"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
                 placeholder="Enter category name"
                 required
+                aria-label="New category name"
               />
-              <button type="submit">Add Category</button>
+              <button 
+                type="submit"
+                aria-label="Add new category"
+              >
+                Add Category
+              </button>
             </div>
           </form>
 
@@ -292,12 +309,15 @@ export default function Home() {
                         {editingValue?.category === category && editingValue?.index === index ? (
                           <div className={styles.editForm}>
                             <input
+                              id={`edit-value-${category}-${index}`}
+                              name={`edit-value-${category}-${index}`}
                               type="text"
                               value={editTempValue}
                               onChange={(e) => setEditTempValue(e.target.value)}
                               onKeyDown={(e) => handleValueKeyDown(e, saveValueEdit)}
                               autoFocus
                               className={styles.editInput}
+                              aria-label={`Edit value for ${category}`}
                             />
                             <div className={styles.editActions}>
                               <button
