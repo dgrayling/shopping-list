@@ -38,11 +38,7 @@ const createItemsSlice: StateCreator<
   [],
   ItemsState
 > = (set) => ({
-  items: [
-    { id: '1', text: 'Apples', quantity: 10, completed: false },
-    { id: '2', text: 'Honey', quantity: 2, completed: false },
-    { id: '3', text: 'Yogurt', quantity: 3, completed: false }
-  ],
+  items: [],
   editingQuantityId: null,
   tempQuantity: '',
   inputValue: '',

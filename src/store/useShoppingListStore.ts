@@ -29,7 +29,7 @@ interface ShoppingListState {
   editingCategory: string | null;
   editingValue: { category: string; index: number } | null;
   editTempValue: string;
-  
+
   // Actions
   setInputValue: (value: string) => void;
   addItem: (text: string) => void;
@@ -56,11 +56,7 @@ interface ShoppingListState {
 
 const useShoppingListStore = create<ShoppingListState>((set) => ({
   // Initial state
-  items: [
-    { id: '1', text: 'Apples', quantity: 10, completed: false },
-    { id: '2', text: 'Honey', quantity: 2, completed: false },
-    { id: '3', text: 'Yogurt', quantity: 3, completed: false }
-  ],
+  items: [],
   categorizations: {},
   inputValue: '',
   editingQuantityId: null,
@@ -73,7 +69,7 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
 
   // Actions
   setInputValue: (value) => set({ inputValue: value }),
-  
+
   addItem: (text) => set((state) => ({
     items: [
       ...state.items,
@@ -99,8 +95,8 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
 
   updateQuantity: (id, newQuantity) => set((state) => ({
     items: state.items.map((item) =>
-      item.id === id 
-        ? { ...item, quantity: Math.max(1, Math.min(99, newQuantity)) } 
+      item.id === id
+        ? { ...item, quantity: Math.max(1, Math.min(99, newQuantity)) }
         : item
     ),
   })),
@@ -126,11 +122,11 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
   }),
 
   setEditingQuantityId: (id) => set({ editingQuantityId: id }),
-  
+
   setTempQuantity: (value) => set({ tempQuantity: value }),
-  
+
   setNewCategory: (value) => set({ newCategory: value }),
-  
+
   setNewValues: (values) => set({ newValues: values }),
 
   addCategory: () => set((state) => {
@@ -150,7 +146,7 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
     return { categorizations: newCategorizations };
   }),
 
-  startEditingCategory: (category) => set({ 
+  startEditingCategory: (category) => set({
     editingCategory: category,
     editTempValue: category,
   }),
@@ -159,11 +155,11 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
     if (!newCategory.trim() || newCategory === oldCategory) {
       return { editingCategory: null };
     }
-    
+
     const newCategorizations = { ...state.categorizations };
     newCategorizations[newCategory] = [...(newCategorizations[oldCategory] || [])];
     delete newCategorizations[oldCategory];
-    
+
     return {
       categorizations: newCategorizations,
       editingCategory: null,
@@ -173,7 +169,7 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
   addValueToCategory: (category) => set((state) => {
     const value = state.newValues[category]?.trim();
     if (!value || !state.categorizations[category]) return {};
-    
+
     return {
       categorizations: {
         ...state.categorizations,
@@ -188,10 +184,10 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
 
   deleteValue: (category, index) => set((state) => {
     if (!state.categorizations[category]) return {};
-    
+
     const newValues = [...state.categorizations[category]];
     newValues.splice(index, 1);
-    
+
     return {
       categorizations: {
         ...state.categorizations,
@@ -209,10 +205,10 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
     if (!newValue.trim() || !state.categorizations[category]) {
       return { editingValue: null };
     }
-    
+
     const newValues = [...state.categorizations[category]];
     newValues[index] = newValue.trim();
-    
+
     return {
       categorizations: {
         ...state.categorizations,
@@ -228,28 +224,28 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
 
     const categoryValues = item.categoryValues || [];
     const existingIndex = categoryValues.findIndex(cv => cv.category === category);
-    
+
     if (existingIndex >= 0) {
       // Update existing category value
       const updatedValues = [...categoryValues];
       updatedValues[existingIndex] = { category, value };
-      
+
       return {
-        items: state.items.map(i => 
-          i.id === itemId 
-            ? { ...i, categoryValues: updatedValues } 
+        items: state.items.map(i =>
+          i.id === itemId
+            ? { ...i, categoryValues: updatedValues }
             : i
         )
       };
     } else {
       // Add new category value
       return {
-        items: state.items.map(i => 
-          i.id === itemId 
-            ? { 
-                ...i, 
-                categoryValues: [...categoryValues, { category, value }] 
-              } 
+        items: state.items.map(i =>
+          i.id === itemId
+            ? {
+              ...i,
+              categoryValues: [...categoryValues, { category, value }]
+            }
             : i
         )
       };
@@ -258,12 +254,12 @@ const useShoppingListStore = create<ShoppingListState>((set) => ({
 
   removeCategoryValue: (itemId, category) => set((state) => {
     return {
-      items: state.items.map(item => 
+      items: state.items.map(item =>
         item.id === itemId && item.categoryValues
-          ? { 
-              ...item, 
-              categoryValues: item.categoryValues.filter(cv => cv.category !== category) 
-            }
+          ? {
+            ...item,
+            categoryValues: item.categoryValues.filter(cv => cv.category !== category)
+          }
           : item
       )
     };
