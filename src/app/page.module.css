@@ -60,7 +60,7 @@
     max-width: 65%;
     order: 1;
   }
-  
+
   .aside {
     width: 35%;
     max-width: 350px;
@@ -158,17 +158,18 @@
     margin: 0;
     border-radius: 0;
   }
-  
+
   .commitInfo {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
-  .commitHash, .commitMessage {
+
+  .commitHash,
+  .commitMessage {
     max-width: 100%;
   }
-  
+
   .historyList {
     max-height: 150px;
   }
@@ -332,7 +333,7 @@
   background: white;
   padding: 4px;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
 
@@ -654,7 +655,7 @@
 
 .quantityContainer {
   display: flex;
-  min-width: 100px;
+  min-width: 150px;
   align-items: center;
   gap: 8px;
   margin: 0 16px;
@@ -715,11 +716,12 @@
   /* Gray when disabled */
 }
 
-.quantityIndicator {
-  min-width: 36px;
+.quantityIndicator,
+.quantityInput {
+  min-width: 60px;
+  max-width: 60px;
   text-align: center;
   cursor: pointer;
-  padding: 8px 4px;
   border-radius: 4px;
   transition: all 0.2s ease;
   font-size: 1.1rem;
@@ -740,18 +742,6 @@
 
 .quantityIndicator:hover {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-.quantityInput {
-  width: 36px;
-  text-align: center;
-  border: 1px solid var(--primary);
-  border-radius: 4px;
-  padding: 4px 0;
-  font-size: 1rem;
-  outline: none;
-  background-color: white;
-  box-shadow: 0 0 0 1px var(--primary);
 }
 
 .quantityInput:focus {

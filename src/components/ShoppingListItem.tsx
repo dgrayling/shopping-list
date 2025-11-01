@@ -50,7 +50,7 @@ export default function ShoppingListItem({
   const startAction = (action: () => void) => {
     // Execute action immediately
     action();
-    
+
     // Set a timeout before starting the interval
     const timeoutId = window.setTimeout(() => {
       // Then set up the interval for continuous action
@@ -69,7 +69,9 @@ export default function ShoppingListItem({
     }
   };
 
-  const handleQuantityKeyDown = (e: React.KeyboardEvent, itemId: string) => {
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, itemId: string) => {
+    const currentValue = parseInt(e.currentTarget.value, 10) || 0;
+    
     if (e.key === 'Enter') {
       e.preventDefault();
       const newQuantity = parseInt(tempQuantity, 10);
@@ -79,6 +81,16 @@ export default function ShoppingListItem({
       }
     } else if (e.key === 'Escape') {
       setEditingQuantityId(null);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const newValue = currentValue + 1;
+      setTempQuantity(newValue.toString());
+      onUpdateQuantity(itemId, newValue);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const newValue = Math.max(1, currentValue - 1);
+      setTempQuantity(newValue.toString());
+      onUpdateQuantity(itemId, newValue);
     }
   };
 
@@ -110,14 +122,22 @@ export default function ShoppingListItem({
             value={tempQuantity}
             onChange={(e) => setTempQuantity(e.target.value)}
             onKeyDown={(e) => handleQuantityKeyDown(e, item.id)}
-            onBlur={() => setEditingQuantityId(null)}
+            onBlur={() => {
+              const newQuantity = parseInt(tempQuantity, 10);
+              if (!isNaN(newQuantity) && newQuantity > 0) {
+                onUpdateQuantity(item.id, newQuantity);
+              }
+              setEditingQuantityId(null);
+            }}
             className={styles.quantityInput}
             min="1"
+            step="1"
             autoFocus
+            onFocus={(e) => e.target.select()}
           />
         ) : (
-          <span 
-            className={styles.quantity} 
+          <span
+            className={styles.quantityIndicator}
             onClick={() => {
               setTempQuantity(item.quantity.toString());
               setEditingQuantityId(item.id);
@@ -126,7 +146,7 @@ export default function ShoppingListItem({
             {item.quantity}
           </span>
         )}
-        <button 
+        <button
           onMouseDown={() => startAction(() => onIncrement(item.id))}
           onMouseUp={stopAction}
           onMouseLeave={stopAction}
@@ -137,23 +157,23 @@ export default function ShoppingListItem({
           +
         </button>
       </div>
-      
-      <span 
+
+      <span
         className={`${styles.itemText} ${item.completed ? styles.completed : ''}`}
         onClick={() => onToggleComplete(item.id)}
       >
         {item.text}
       </span>
-      
+
       <div className={styles.categoryBubbles} onClick={(e) => e.stopPropagation()}>
         {item.categoryValues?.map((cv, idx) => (
-          <span 
-            key={`${item.id}-${cv.category}`} 
+          <span
+            key={`${item.id}-${cv.category}`}
             className={styles.categoryBubble}
             title={`${cv.category}: ${cv.value}`}
           >
             {cv.category}: {cv.value}
-            <button 
+            <button
               className={styles.removeBubble}
               onClick={() => onRemoveCategoryValue(item.id, cv.category)}
             >
@@ -161,10 +181,10 @@ export default function ShoppingListItem({
             </button>
           </span>
         ))}
-        
+
         {selectedItemId === item.id ? (
           <div className={styles.addCategoryValue}>
-            <select 
+            <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className={styles.categorySelect}
@@ -178,7 +198,7 @@ export default function ShoppingListItem({
                 )
               ))}
             </select>
-            
+
             {selectedCategory && categorizations[selectedCategory]?.length > 0 && (
               <select
                 onChange={(e) => {
@@ -198,8 +218,8 @@ export default function ShoppingListItem({
                 ))}
               </select>
             )}
-            
-            <button 
+
+            <button
               className={styles.cancelAddBubble}
               onClick={() => {
                 setSelectedItemId(null);
@@ -210,7 +230,7 @@ export default function ShoppingListItem({
             </button>
           </div>
         ) : (
-          <button 
+          <button
             className={styles.addBubbleButton}
             onClick={() => setSelectedItemId(item.id)}
             title="Add category value"
@@ -219,12 +239,12 @@ export default function ShoppingListItem({
           </button>
         )}
       </div>
-      
-      <button 
+
+      <button
         onClick={(e) => {
           e.stopPropagation();
           onDelete(item.id);
-        }} 
+        }}
         className={styles.deleteButton}
       >
         ×
