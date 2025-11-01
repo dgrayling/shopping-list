@@ -198,11 +198,7 @@
 
 .formGroup input[type="text"] {
   flex: 1;
-  padding: 0.75rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 0.95rem;
-  transition: all 0.2s;
 }
 
 .formGroup input[type="text"]:focus {
