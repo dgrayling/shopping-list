@@ -222,8 +222,9 @@ export default function Home() {
               }}
               aria-label="New item"
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
+              name="add-item"
               className={styles.button}
               aria-label="Add item to list"
             >
@@ -274,8 +275,9 @@ export default function Home() {
                 aria-label="New category name"
                 className={styles.input}
               />
-              <button 
+              <button
                 type="submit"
+                name="add-category"
                 aria-label="Add new category"
               >
                 Add Category
@@ -299,6 +301,7 @@ export default function Home() {
                       />
                       <div className={styles.editActions}>
                         <button
+                          name="save-category"
                           onClick={() => saveCategoryEdit(category, editTempValue)}
                           className={styles.saveButton}
                           disabled={!editTempValue.trim()}
@@ -306,6 +309,7 @@ export default function Home() {
                           ✓
                         </button>
                         <button
+                          name="cancel-category"
                           onClick={cancelEditCategory}
                           className={styles.cancelButton}
                         >
@@ -318,6 +322,7 @@ export default function Home() {
                       <h3>{category}</h3>
                       <button
                         onClick={() => startEditCategory(category)}
+                        name="edit-category"
                         className={styles.editButton}
                         title="Edit category"
                       >
@@ -347,6 +352,7 @@ export default function Home() {
                             />
                             <div className={styles.editActions}>
                               <button
+                                name="save-value"
                                 onClick={saveValueEdit}
                                 className={styles.saveButton}
                                 disabled={!editTempValue.trim()}
@@ -354,6 +360,7 @@ export default function Home() {
                                 ✓
                               </button>
                               <button
+                                name="cancel-value"
                                 onClick={cancelEditValue}
                                 className={styles.cancelButton}
                               >
@@ -366,6 +373,7 @@ export default function Home() {
                             <span>{value}</span>
                             <button
                               onClick={() => startEditValue(category, index)}
+                              name="edit-value"
                               className={styles.editButton}
                               title="Edit value"
                             >
@@ -392,6 +400,7 @@ export default function Home() {
                     />
                     <button
                       type="submit"
+                      name="add-value"
                       className={styles.addButton}
                       disabled={!newValues[category]?.trim()}
                     >

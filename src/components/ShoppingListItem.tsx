@@ -71,7 +71,7 @@ export default function ShoppingListItem({
 
   const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, itemId: string) => {
     const currentValue = parseInt(e.currentTarget.value, 10) || 0;
-    
+
     if (e.key === 'Enter') {
       e.preventDefault();
       const newQuantity = parseInt(tempQuantity, 10);
@@ -183,6 +183,8 @@ export default function ShoppingListItem({
           >
             {cv.category}: {cv.value}
             <button
+              name={`remove-value-${item.id}-${cv.category}`}
+              aria-label={`Remove ${cv.value} from ${cv.category}`}
               className={styles.removeBubble}
               onClick={() => onRemoveCategoryValue(item.id, cv.category)}
             >
